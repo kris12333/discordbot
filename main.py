@@ -186,5 +186,30 @@ async def play(ctx):
 
         except:
             break
+
+#pauses the current song
+@client.command(name = 'pause', help = 'Pauses the song.')
+async def pause(ctx):
+    server = ctx.message.guild
+    voice_channel = server.voice_client
+
+    voice_channel.pause()
+
+#resumes the song
+@client.command(name = 'resume', help = 'Resumes the song.')
+async def resume(ctx):
+    server = ctx.message.guild
+    voice_channel = server.voice_client
+
+    voice_channel.resume()
+
+#stops the song
+@client.command(name = 'stop', help = 'Stops the song.')
+async def stop(ctx):
+    server = ctx.message.guild
+    voice_channel = server.voice_client
+
+    voice_channel.stop()
+
 #uses the discord bot token in order to run it
 client.run('OTY1NjE5MjgwMjE1NDA4NjYy.GejTd7.PwaxrdcnkjPn9vUNk7Tguimojc_09Dm3aUdQ9M')
