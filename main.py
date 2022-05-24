@@ -7,6 +7,7 @@ from random import choice
 
 youtube_dl.utils.bug_reports_message = lambda: ''
 
+#using some recommended ytdl options
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
@@ -42,41 +43,47 @@ class YTDLSource(discord.PCMVolumeTransformer):
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download = not stream))
 
         if 'entries' in data:
-            # take first item from a playlist
+            # takes the first item from a playlist
             data = data['entries'][0]
 
         filename = data['url'] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data = data)
-
 def is_connected(ctx):
     voice_client = ctx.message.guild.voice_client
     return voice_client and voice_client.is_connected()
 
+#prefix before the commands
 client = commands.Bot(command_prefix = '!')
 
+#discord status shown below the name
 status = 'music!'
 queue = []
 loop = False
 
+#sets the status and confirms bot is online
 @client.event
 async def on_ready():
     await client.change_presence(activity = discord.Game(status))
     print('Bot is online!')
 
+#welcomes new members
 @client.event
 async def on_member_join(member):
     channel = discord.utils.get(member.guild.channels, name = 'general')
     await channel.send(f'{member.mention}, welcome to the server!')
 
+#selects one of the random messages to return as reply
 @client.command(name = 'hello', help = 'Sends a random \"hello\" message')
 async def hello(ctx):
     replies = ['yooo what\'s up', 'nice to see you back', 'how\'s the day goin\'', 'Hi!!!']
     await ctx.send(choice(replies))
 
+#shows the bot ping in ms
 @client.command(name = 'ping', help = 'Shows the latency.')
 async def ping(ctx):
     await ctx.send(f'Ping: {round(client.latency * 1000)}ms.')
 
+#makes the bot join the voice channel the user is in
 @client.command(name = 'join', help = 'Bot joins the voice channel.')
 async def join(ctx):
     if not ctx.message.author.voice:
@@ -88,11 +95,13 @@ async def join(ctx):
 
     await channel.connect()
 
+#leaves the voice channel
 @client.command(name = 'leave', help = 'Bot leaves the voice channel.')
 async def leave(ctx):
     voice_client = ctx.message.guild.voice_client
     await voice_client.disconnect()
 
+#adds the received url to a queue
 @client.command(name = 'queue', help = 'Adds a song to the queue.')
 async def queue_(ctx, *, url):
     global queue
@@ -100,6 +109,7 @@ async def queue_(ctx, *, url):
     queue.append(url)
     await ctx.send(f'**{url}** added to the queue!')
 
+#removes the song[index] from the queue - with !remove 0 it removes the first queued song for example
 @client.command(name = 'remove', help = 'Removes an index from the queue.')
 async def remove(ctx, number):
     global queue
@@ -114,10 +124,12 @@ async def remove(ctx, number):
     except:
         await ctx.send('Empty queue or index not valid!')
 
+#returns the queue
 @client.command(name = 'view', help = 'Shows the queue.')
 async def view(ctx):
     await ctx.send(f'Your queue is now **{queue}**!')
 
+#toggles loop mode
 @client.command(name = 'loop', help = 'Toggles loop mode.')
 async def loop_(ctx):
     global loop
@@ -130,6 +142,7 @@ async def loop_(ctx):
         await ctx.send('Loop mode is now **on**')
         loop = True
 
+#downlaods a sound file of the url and then tries to play it
 @client.command(name = 'play', help = 'Plays songs.')
 async def play(ctx):
     global queue
@@ -173,5 +186,5 @@ async def play(ctx):
 
         except:
             break
-
+#uses the discord bot token in order to run it
 client.run('OTY1NjE5MjgwMjE1NDA4NjYy.GejTd7.PwaxrdcnkjPn9vUNk7Tguimojc_09Dm3aUdQ9M')
